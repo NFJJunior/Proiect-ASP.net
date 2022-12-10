@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Proiect.Data;
 
@@ -11,9 +12,11 @@ using Proiect.Data;
 namespace Proiect.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20221210171102_asdads")]
+    partial class asdads
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -310,7 +313,7 @@ namespace Proiect.Data.Migrations
                     b.Property<string>("UserId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<int>("GroupId")
+                    b.Property<int?>("GroupId")
                         .HasColumnType("int");
 
                     b.Property<bool>("isModerator")
@@ -319,9 +322,6 @@ namespace Proiect.Data.Migrations
                     b.HasKey("UserId", "GroupId");
 
                     b.HasIndex("GroupId");
-
-                    b.HasIndex("UserId")
-                        .IsUnique();
 
                     b.ToTable("UserGroupModerators");
                 });
@@ -416,19 +416,14 @@ namespace Proiect.Data.Migrations
                         .IsRequired();
 
                     b.HasOne("Proiect.Models.ApplicationUser", "User")
-                        .WithOne("UserGroupModerators")
-                        .HasForeignKey("Proiect.Models.UserGroupModerators", "UserId")
+                        .WithMany()
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Group");
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("Proiect.Models.ApplicationUser", b =>
-                {
-                    b.Navigation("UserGroupModerators");
                 });
 
             modelBuilder.Entity("Proiect.Models.Group", b =>

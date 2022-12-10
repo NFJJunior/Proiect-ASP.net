@@ -17,6 +17,7 @@ namespace Proiect.Data
         public DbSet<Group> Groups { get; set; }
         public DbSet<Message> Messages { get; set; }
         public DbSet<UserGroupModerators> UserGroupModerators { get; set; } 
+        public DbSet<ApplicationUser> ApplicationUser { get; set; }
 
     }
 }

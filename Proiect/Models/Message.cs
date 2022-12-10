@@ -14,7 +14,7 @@ namespace Proiect.Models
         public int? GroupId { get; set; }
         public string? userId { get; set; }
 
-        public virtual ApplicationUser User { get; set; }
+        public virtual ApplicationUser? User { get; set; }
 
         public virtual Group? Group { get; set; }
     }

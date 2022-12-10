@@ -79,7 +79,6 @@ namespace Proiect.Controllers
                                .Where(art => art.Id == message.GroupId)
                                .First();
 
-                //return Redirect("/Groups/Show/" + comm.GroupId);
 
                 return View(art);
             }
@@ -89,6 +88,7 @@ namespace Proiect.Controllers
         public IActionResult New()
         {
             Group group = new Group();
+            
             group.Categ = GetAllCategories();
             return View(group);
         }
@@ -96,21 +96,35 @@ namespace Proiect.Controllers
         public IActionResult New(Group group)
         {
             group.Date = DateTime.Now;
-            group.UserId = "0f2026e2-9b42-42be-bff8-18de85de6d7e";
-
-
+            group.UserId = _userManager.GetUserId(User);
+            UserGroupModerators ugr = new UserGroupModerators();
+            
             if (ModelState.IsValid)
             {
                 db.Groups.Add(group);
+                
                 db.SaveChanges();
+
+                ugr.UserId = _userManager.GetUserId(User);
+                ugr.GroupId = group.Id;
+                ugr.isModerator = true;
+                db.UserGroupModerators.Add(ugr);
+
+                db.SaveChanges();
+
+
+                /**/
                 TempData["message"] = "Grupul a fost adaugat";
                 return RedirectToAction("Index");
             }
+
+           
             else
             {
                 group.Categ = GetAllCategories();
                 return View(group);
             }
+            
         }
 
         public IActionResult Edit(int id)
@@ -153,10 +167,11 @@ namespace Proiect.Controllers
         public ActionResult Delete(int id)
         {
             Group article = db.Groups.Include("Messages").Where(art => art.Id == id).First();
+            UserGroupModerators ugm = db.UserGroupModerators.Where(art => art.GroupId == id).First();
 
-            
-            
-                db.Groups.Remove(article);
+
+
+            db.Groups.Remove(article);
                 db.SaveChanges();
                 TempData["message"] = "Grupul a fost sters";
             
@@ -190,9 +205,18 @@ namespace Proiect.Controllers
             return selectList;
         }
 
+
         public IActionResult IndexNou()
         {
             return View();
+        }
+
+
+        public IActionResult ShowMembers(int id)
+        {
+            ApplicationUser usr = db.ApplicationUser.FirstOrDefault(usr => usr.UserGroupModerators.GroupId == id);
+
+            return View(usr);
         }
     }
 

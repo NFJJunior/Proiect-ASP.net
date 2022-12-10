@@ -10,8 +10,8 @@ namespace Proiect.Models
     public class UserGroupModerators
     {
         
-        public string? UserId { get; set; }
-        public int? GroupId { get; set; }
+        public string UserId { get; set; }
+        public int GroupId { get; set; }
         public bool isModerator { get; set; }
         public virtual ApplicationUser User { get; set; }
         public virtual Group Group { get; set; }
