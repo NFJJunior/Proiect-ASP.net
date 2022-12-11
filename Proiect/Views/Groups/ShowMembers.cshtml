@@ -1,3 +1,36 @@
-﻿@model Proiect.Models.ApplicationUser
+﻿
+@{
+    ViewBag.Title = "ShowMembers";
+}
+<h2>Afisare membri</h2>
+<br />
+@if (ViewBag.Message != null)
+{
+    <h2 class="alert-success p-3 rounded-3 text-center mb-5">@ViewBag.Message</h2>
+}
 
-<li>@Model.UserName</li>
+@foreach (string name in ViewBag.Users){
+
+
+    <div class="card-body">
+        <h3 class="card-title alert-success py-3 px-3 rounded-2">@name</h3>
+        <h3 class="card-title alert-success py-3 px-3 rounded-2">@ViewData[@name]</h3>
+
+        @foreach (string userId in ViewBag.usersIdHash)
+        {
+            if ((string)userId == (string)@ViewData[@name]){
+                
+                <form method="post" asp-route-groupId="@ViewBag.GroupId" asp-route-userId="@userId" asp-action="MakeModerator">
+
+                                    <button class="btn btn-danger" type="submit">Make moderator</button>
+
+                 </form>
+            }
+       
+        }
+        
+
+
+    </div>
+    
+}

@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System.Collections.Generic;
 
 namespace Proiect.Controllers
 {
@@ -63,7 +64,7 @@ namespace Proiect.Controllers
         public IActionResult Show([FromForm] Message message)
         {
             message.Date = DateTime.Now;
-            message.userId = "0f2026e2-9b42-42be-bff8-18de85de6d7e";
+            message.userId = _userManager.GetUserId(User);
 
 
             if (ModelState.IsValid)
@@ -163,17 +164,24 @@ namespace Proiect.Controllers
             }
         }
         [HttpPost]
-        [Authorize(Roles = "Admin")]
         public ActionResult Delete(int id)
         {
-            Group article = db.Groups.Include("Messages").Where(art => art.Id == id).First();
-            UserGroupModerators ugm = db.UserGroupModerators.Where(art => art.GroupId == id).First();
+            if (isModerator(id,_userManager.GetUserId(User)) == true|| User.IsInRole("Admin"))
+            {
+
+                Group article = db.Groups.Include("Messages").Where(art => art.Id == id).First();
+                UserGroupModerators ugm = db.UserGroupModerators.Where(art => art.GroupId == id).First();
 
 
 
-            db.Groups.Remove(article);
+                db.Groups.Remove(article);
                 db.SaveChanges();
                 TempData["message"] = "Grupul a fost sters";
+            }
+            else {
+                TempData["message"] = "Nu aveti dreptul de a sterge acest grup!";
+            }
+            
             
            
             return RedirectToAction("Index");
@@ -204,6 +212,14 @@ namespace Proiect.Controllers
             
             return selectList;
         }
+        public bool isModerator(int GroupId,string UserId)
+        {
+            var userGroupMod=db.UserGroupModerators.Where(art => art.GroupId == GroupId).Where(art=>art.UserId==UserId).First();
+            if (userGroupMod.isModerator == false)
+                return false;
+
+            return true;
+        }
 
 
         public IActionResult IndexNou()
@@ -214,9 +230,74 @@ namespace Proiect.Controllers
 
         public IActionResult ShowMembers(int id)
         {
-            ApplicationUser usr = db.ApplicationUser.FirstOrDefault(usr => usr.UserGroupModerators.GroupId == id);
+            //am folosit hash ca sa nu se repete id-urile
+            HashSet<string> usersIdHash = new HashSet<string>();
+            //aici le-am luat pe toate din UserGroupModerators
+            var usersid = from ugm in db.UserGroupModerators
+                          where ugm.GroupId == id
+                               select ugm.UserId;
+            foreach (var i in usersid)
+            {
+                usersIdHash.Add(i.ToString());
+            }
+                
 
-            return View(usr);
+            List<string> userName = new List<string>();
+            foreach (var i in usersIdHash)
+
+            {
+                var name = db.ApplicationUser.Where(ust => ust.Id == i).First();
+                userName.Add(name.UserName);
+
+            }
+            ViewBag.usersIdHash = usersIdHash;
+            ViewBag.Users = userName;
+            ViewBag.GroupId = id;
+
+            //un dictionar
+            foreach(var u in userName)
+                ViewData[u] = db.ApplicationUser.Where(usr=>usr.UserName==u).First().Id;
+                
+
+            return View();
+        }
+
+
+        [HttpPost]
+        public ActionResult Join(int id)
+        {
+            UserGroupModerators ugm = new UserGroupModerators();
+            ugm.UserId= _userManager.GetUserId(User);
+            ugm.GroupId= id;
+            ugm.isModerator= false;
+
+            db.UserGroupModerators.Add(ugm);
+            db.SaveChanges();
+            TempData["message"] = "Welcome in the group";
+
+            return RedirectToAction("Index");
+        }
+        public ActionResult MakeModerator(int groupId,string userId)
+        {
+            UserGroupModerators ugm = db.UserGroupModerators.Where(grai=>grai.GroupId==groupId).Where(hasa=>hasa.UserId==userId).First();
+
+            ugm.isModerator= true;
+            db.SaveChanges();
+            TempData["message"] = "Adaugare in grupul de moderatori realizata !";
+            return RedirectToAction("Index");
+
+        }
+        public ActionResult ShowMy()
+        {
+           var curentUserId = _userManager.GetUserId(User);
+           var groupIds = db.UserGroupModerators.Where(ugm => ugm.UserId == curentUserId);
+            List<string> numeGrupuri = new List<string>();
+            foreach (var groupid in groupIds) {
+                var grup = db.Groups.Where(gru => gru.Id == groupid.GroupId).First().Name;
+                numeGrupuri.Add(grup);
+            }
+            ViewBag.numeGrupuri = numeGrupuri;
+            return View();
         }
     }
 

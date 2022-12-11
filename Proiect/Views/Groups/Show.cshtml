@@ -9,14 +9,22 @@
     <div class="d-flex flex-row justify-content-between p-3 border-1 border-top">
 
             <a class="btn btn-success" href="/Groups/Edit/@Model.Id">Editeaza grup</a>
-            <a class="btn btn-success" href="/Groups/Edit/@Model.Id">Alatura-te grupului</a>
             <a class="btn btn-success" href="/Groups/ShowMembers/@Model.Id">Afiseaza membri grup</a>
 
+        <form method="post" action="/Groups/Join/@Model.Id">
+
+            <button class="btn btn-danger" type="submit">Join grup</button>
+
+        </form>
+        
             <form method="post" action="/Groups/Delete/@Model.Id">
 
                 <button class="btn btn-danger" type="submit">Sterge grup</button>
 
             </form>
+        
+
+            
 
         </div>
 </div>
