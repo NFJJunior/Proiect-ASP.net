@@ -14,13 +14,23 @@
 
         <a class="btn btn-success" href="/Groups/ShowMembers/@Model.Id">Afiseaza membri grup</a>
 
-        @if(ViewBag.alreadyJoined == false)
-        {
-            <form method="post" action="/Groups/Join/@Model.Id">
+        @{
+            if(ViewBag.alreadyJoined == false)
+            {
+                <form method="post" action="/Groups/Join/@Model.Id">
 
-                <button class="btn btn-danger" type="submit">Join grup</button>
+                    <button class="btn btn-danger" type="submit">Join grup</button>
 
-            </form>
+                </form>
+            }
+            else
+            {
+                <form method="post" action="/Groups/Leave/@Model.Id">
+
+                    <button class="btn btn-danger" type="submit">Leave grup</button>
+
+                </form>
+            }
         }
         
         @if(ViewBag.isModerator || ViewBag.isAdmin)

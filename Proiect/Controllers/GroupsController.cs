@@ -263,7 +263,7 @@ namespace Proiect.Controllers
             //aici le-am luat pe toate din UserGroupModerators
             var usersid = from ugm in db.UserGroupModerators
                           where ugm.GroupId == id
-                               select ugm.UserId;
+                          select ugm.UserId;
             foreach (var i in usersid)
             {
                 usersIdHash.Add(i.ToString());
@@ -312,16 +312,47 @@ namespace Proiect.Controllers
                 db.UserGroupModerators.Add(ugm);
                 db.SaveChanges();
                 TempData["message"] = "Welcome in the group!";
-
-                return RedirectToAction("Index");
             }
             else
-            {
                 TempData["message"] = "Esti deja in grup vere!";
 
-                return RedirectToAction("Index");
-            }
+            return RedirectToAction("Index");
         }
+
+        [HttpPost]
+        public IActionResult Leave(int id)
+        {
+            var curentUser = _userManager.GetUserId(User);
+
+            UserGroupModerators? ugm = db.UserGroupModerators
+                                         .Where(ug => ug.GroupId == id)
+                                         .Where(ug => ug.UserId == curentUser)
+                                         .FirstOrDefault();
+
+            int nrModerators = db.UserGroupModerators
+                                 .Where(ug => ug.GroupId == id)
+                                 .Where(ug => ug.isModerator == true)
+                                 .Count();
+                                
+            if(ugm != null)
+            {
+                if (nrModerators > 1)
+                {
+                    db.UserGroupModerators.Remove(ugm);
+                    db.SaveChanges();
+
+                    TempData["message"] = "Ai parasit grupul!";
+                }
+                else
+                    TempData["message"] = "Esti ultimul moderator al grupului!";
+
+            }
+            else
+                TempData["message"] = "Nici macar nu esti in grup!";
+
+            return RedirectToAction("Index");
+        }
+
         public ActionResult MakeModerator(int groupId,string userId)
         {
             UserGroupModerators ugm = db.UserGroupModerators.Where(grai=>grai.GroupId==groupId).Where(hasa=>hasa.UserId==userId).First();
