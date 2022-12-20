@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Proiect.Data;
 
@@ -11,9 +12,11 @@ using Proiect.Data;
 namespace Proiect.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20221219224425_New1")]
+    partial class New1
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -293,14 +296,14 @@ namespace Proiect.Data.Migrations
                     b.Property<int?>("GroupId")
                         .HasColumnType("int");
 
-                    b.Property<string>("UserId")
+                    b.Property<string>("userId")
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("GroupId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("userId");
 
                     b.ToTable("Messages");
                 });
@@ -397,7 +400,7 @@ namespace Proiect.Data.Migrations
 
                     b.HasOne("Proiect.Models.ApplicationUser", "User")
                         .WithMany()
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("userId");
 
                     b.Navigation("Group");
 
@@ -407,7 +410,7 @@ namespace Proiect.Data.Migrations
             modelBuilder.Entity("Proiect.Models.UserGroupModerators", b =>
                 {
                     b.HasOne("Proiect.Models.Group", "Group")
-                        .WithMany("UserGroupModerators")
+                        .WithMany("UserGroups")
                         .HasForeignKey("GroupId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -437,7 +440,7 @@ namespace Proiect.Data.Migrations
                 {
                     b.Navigation("Messages");
 
-                    b.Navigation("UserGroupModerators");
+                    b.Navigation("UserGroups");
                 });
 #pragma warning restore 612, 618
         }

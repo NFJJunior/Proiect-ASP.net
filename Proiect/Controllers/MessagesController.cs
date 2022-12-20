@@ -10,27 +10,31 @@ namespace Proiect.Controllers
     public class MessagesController : Controller
     {
         private readonly ApplicationDbContext db;
+
+        private readonly UserManager<ApplicationUser> _userManager;
+
+        private readonly RoleManager<IdentityRole> _roleManager;
         public MessagesController(
-        ApplicationDbContext context
+        ApplicationDbContext context,
+        UserManager<ApplicationUser> userManager,
+        RoleManager<IdentityRole> roleManager
         )
         {
             db = context;
-        }
-
-        [HttpPost]
-        public IActionResult Delete(int id)
-        {
-            Message msg = db.Messages.Find(id);
-                db.Messages.Remove(msg);
-                db.SaveChanges();
-                return Redirect("/Groups/Show/" + msg.GroupId);
+            _userManager = userManager;
+            _roleManager = roleManager;
         }
 
         public IActionResult Edit(int id)
         {
-            Message comm = db.Messages.Find(id);
-           
-                return View(comm);
+            Message msg = db.Messages.Find(id);
+
+            if (msg.UserId == _userManager.GetUserId(User) || User.IsInRole("Admin"))
+                return View(msg);
+
+            TempData["message"] = "Nu i a tau comentariu!";
+
+            return Redirect("/Groups/Index");
         }
 
         [HttpPost]
@@ -50,6 +54,25 @@ namespace Proiect.Controllers
                 return View(requestComment);
             }
 
+        }
+
+        [HttpPost]
+        public IActionResult Delete(int id)
+        {
+            Message msg = db.Messages.Find(id);
+
+
+            if (msg.UserId == _userManager.GetUserId(User) || User.IsInRole("Admin"))
+            {
+                db.Messages.Remove(msg);
+                db.SaveChanges();
+
+                return Redirect("/Groups/Show/" + msg.GroupId);
+            }
+
+            TempData["message"] = "Nu i a tau comentariu!";
+
+            return Redirect("/Groups/Index");
         }
     }
 }

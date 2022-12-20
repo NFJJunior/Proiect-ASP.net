@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Proiect.Data;
 
@@ -11,9 +12,11 @@ using Proiect.Data;
 namespace Proiect.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20221219220926_New")]
+    partial class New
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -293,14 +296,14 @@ namespace Proiect.Data.Migrations
                     b.Property<int?>("GroupId")
                         .HasColumnType("int");
 
-                    b.Property<string>("UserId")
+                    b.Property<string>("userId")
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("GroupId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("userId");
 
                     b.ToTable("Messages");
                 });
@@ -319,6 +322,9 @@ namespace Proiect.Data.Migrations
                     b.HasKey("UserId", "GroupId");
 
                     b.HasIndex("GroupId");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
 
                     b.ToTable("UserGroupModerators");
                 });
@@ -397,7 +403,7 @@ namespace Proiect.Data.Migrations
 
                     b.HasOne("Proiect.Models.ApplicationUser", "User")
                         .WithMany()
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("userId");
 
                     b.Navigation("Group");
 
@@ -407,14 +413,14 @@ namespace Proiect.Data.Migrations
             modelBuilder.Entity("Proiect.Models.UserGroupModerators", b =>
                 {
                     b.HasOne("Proiect.Models.Group", "Group")
-                        .WithMany("UserGroupModerators")
+                        .WithMany()
                         .HasForeignKey("GroupId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Proiect.Models.ApplicationUser", "User")
-                        .WithMany("UserGroupModerators")
-                        .HasForeignKey("UserId")
+                        .WithOne("UserGroupModerators")
+                        .HasForeignKey("Proiect.Models.UserGroupModerators", "UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -436,8 +442,6 @@ namespace Proiect.Data.Migrations
             modelBuilder.Entity("Proiect.Models.Group", b =>
                 {
                     b.Navigation("Messages");
-
-                    b.Navigation("UserGroupModerators");
                 });
 #pragma warning restore 612, 618
         }

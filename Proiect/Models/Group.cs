@@ -17,7 +17,7 @@ namespace Proiect.Models
 
         public int? CategoryId { get; set; }
 
-        public string ?UserId { get; set; }
+        public string? UserId { get; set; }
         public virtual ApplicationUser? User { get; set; }
 
         public virtual Category? Category { get; set; }
@@ -27,5 +27,6 @@ namespace Proiect.Models
         [NotMapped]
         public IEnumerable<SelectListItem>? Categ { get; set; }
 
+        public ICollection<UserGroupModerators>? UserGroupModerators { get; set; }
     }
 }

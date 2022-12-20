@@ -41,30 +41,35 @@ namespace Proiect.Controllers
 
             return View();
         }
+
+        private void SetAccessRights(int id)
+        {
+            var curentUser = _userManager.GetUserId(User);
+
+            ViewBag.curentUser = curentUser;
+            ViewBag.alreadyJoined = AlreadyJoined(id, curentUser);
+            ViewBag.isModerator = IsModerator(id, curentUser);
+            ViewBag.isAdmin = User.IsInRole("Admin");
+        }
+
         public IActionResult Show(int id)
         {
-            Group group = db.Groups.Include("Category").Include("User").Include("Messages").Include("Messages.User").
-                Where(grp => grp.Id == id).First();
+            Group group = db.Groups.Include("Category")
+                                   .Include("User")
+                                   .Include("Messages")
+                                   .Include("Messages.User")
+                                   .Where(grp => grp.Id == id).First();
+
+            SetAccessRights(id);
 
             return View(group);
         }
-        /*private void setAccessRights()
-        {
-            ViewBag.AfisareButoane = false;
-            if (User.IsInRole("Editor"))
-            {
-                ViewBag.AfisareButoane = true;
-
-            }
-            ViewBag.UserCurent = _userManager.GetUserId(User);
-            ViewBag.EsteAdmin = User.IsInRole("Admin");
-        }*/
 
         [HttpPost]
         public IActionResult Show([FromForm] Message message)
         {
             message.Date = DateTime.Now;
-            message.userId = _userManager.GetUserId(User);
+            message.UserId = _userManager.GetUserId(User);
 
 
             if (ModelState.IsValid)
@@ -80,6 +85,7 @@ namespace Proiect.Controllers
                                .Where(art => art.Id == message.GroupId)
                                .First();
 
+                SetAccessRights((int)message.GroupId);
 
                 return View(art);
             }
@@ -130,13 +136,18 @@ namespace Proiect.Controllers
 
         public IActionResult Edit(int id)
         {
+            if (IsModerator(id, _userManager.GetUserId(User)) == true || User.IsInRole("Admin"))
+            {
+                Group group = db.Groups.Include("Category").Where(grp => grp.Id == id).First();
 
-            Group group = db.Groups.Include("Category").Where(grp=>grp.Id==id).First();
-            group.Categ = GetAllCategories();
+                group.Categ = GetAllCategories();
 
                 return View(group);
-            
+            }
 
+            TempData["message"] = "Nu aveti dreptul de a edita acest grup!";
+
+            return RedirectToAction("Index");
         }
 
         // Se adauga articolul modificat in baza de date
@@ -144,7 +155,7 @@ namespace Proiect.Controllers
         public IActionResult Edit(int id, Group requestGroup)
         {
             Group group = db.Groups.Include("Category").Where(grp => grp.Id == id).First();
-           requestGroup.Categ = GetAllCategories();
+            requestGroup.Categ = GetAllCategories();
 
             if (ModelState.IsValid)
             {
@@ -154,8 +165,7 @@ namespace Proiect.Controllers
                     group.CategoryId = requestGroup.CategoryId;
                     TempData["message"] = "Articolul a fost modificat";
                     db.SaveChanges();
-                return RedirectToAction("Index");
-
+                    return RedirectToAction("Index");
 
             }
             else
@@ -166,7 +176,7 @@ namespace Proiect.Controllers
         [HttpPost]
         public ActionResult Delete(int id)
         {
-            if (isModerator(id,_userManager.GetUserId(User)) == true|| User.IsInRole("Admin"))
+            if (IsModerator(id,_userManager.GetUserId(User)) == true || User.IsInRole("Admin"))
             {
 
                 Group article = db.Groups.Include("Messages").Where(art => art.Id == id).First();
@@ -212,10 +222,28 @@ namespace Proiect.Controllers
             
             return selectList;
         }
-        public bool isModerator(int GroupId,string UserId)
+        public bool IsModerator(int GroupId,string UserId)
         {
-            var userGroupMod=db.UserGroupModerators.Where(art => art.GroupId == GroupId).Where(art=>art.UserId==UserId).First();
-            if (userGroupMod.isModerator == false)
+            UserGroupModerators? ugr = db.UserGroupModerators
+                               .Where(art => art.GroupId == GroupId)
+                               .Where(art=>art.UserId==UserId)
+                               .FirstOrDefault();
+            if (ugr == null)
+                return false;
+            if (ugr.isModerator == false)
+                return false;
+
+            return true;
+        }
+
+        public bool AlreadyJoined(int GroupId,string UserId)
+        {
+            UserGroupModerators? ugr = db.UserGroupModerators
+                                        .Where(ugr => ugr.GroupId == GroupId)
+                                        .Where(ugr => ugr.UserId == UserId)
+                                        .FirstOrDefault();
+
+            if (ugr == null) 
                 return false;
 
             return true;
@@ -266,16 +294,33 @@ namespace Proiect.Controllers
         [HttpPost]
         public ActionResult Join(int id)
         {
-            UserGroupModerators ugm = new UserGroupModerators();
-            ugm.UserId= _userManager.GetUserId(User);
-            ugm.GroupId= id;
-            ugm.isModerator= false;
+            var curentUser = _userManager.GetUserId(User);
 
-            db.UserGroupModerators.Add(ugm);
-            db.SaveChanges();
-            TempData["message"] = "Welcome in the group";
+            //  verific daca userul face deja parte din grupul
+            //  in care vrea sa dea join
+            UserGroupModerators? ugm = db.UserGroupModerators
+                                .Where(ug => ug.GroupId == id)
+                                .Where(ug => ug.UserId == curentUser)
+                                .FirstOrDefault();
 
-            return RedirectToAction("Index");
+            if (ugm == null)
+            {
+                ugm = new UserGroupModerators();
+                ugm.UserId = curentUser;
+                ugm.GroupId = id;
+                ugm.isModerator = false;
+                db.UserGroupModerators.Add(ugm);
+                db.SaveChanges();
+                TempData["message"] = "Welcome in the group!";
+
+                return RedirectToAction("Index");
+            }
+            else
+            {
+                TempData["message"] = "Esti deja in grup vere!";
+
+                return RedirectToAction("Index");
+            }
         }
         public ActionResult MakeModerator(int groupId,string userId)
         {

@@ -7,26 +7,31 @@
 <div class="card">
     @Html.Partial("GroupInfo", Model)
     <div class="d-flex flex-row justify-content-between p-3 border-1 border-top">
-
+        @if(ViewBag.isModerator || ViewBag.isAdmin)
+        {
             <a class="btn btn-success" href="/Groups/Edit/@Model.Id">Editeaza grup</a>
-            <a class="btn btn-success" href="/Groups/ShowMembers/@Model.Id">Afiseaza membri grup</a>
+        }
 
-        <form method="post" action="/Groups/Join/@Model.Id">
+        <a class="btn btn-success" href="/Groups/ShowMembers/@Model.Id">Afiseaza membri grup</a>
 
-            <button class="btn btn-danger" type="submit">Join grup</button>
+        @if(ViewBag.alreadyJoined == false)
+        {
+            <form method="post" action="/Groups/Join/@Model.Id">
 
-        </form>
+                <button class="btn btn-danger" type="submit">Join grup</button>
+
+            </form>
+        }
         
+        @if(ViewBag.isModerator || ViewBag.isAdmin)
+        {
             <form method="post" action="/Groups/Delete/@Model.Id">
 
                 <button class="btn btn-danger" type="submit">Sterge grup</button>
 
             </form>
-        
-
-            
-
-        </div>
+        }
+    </div>
 </div>
 
 <br />
@@ -44,17 +49,20 @@
 
                     <p>@comm.Content</p>
                     <small>@comm.Date</small>
-                    @*<strong><i class="bi bi-person"></i>@comm.User.UserName</strong>*@
+                    <br />
+                    <strong><i class="bi bi-person"></i> @comm.User.UserName</strong>
 
                 </div>
-                <br>
-                
+                <br />
+
+                @if (Model.UserId == ViewBag.curentUser || ViewBag.isAdmin)
+                {
 
                     <div class="d-flex">
 
                         <div>
 
-                        <a class="btn btn-outline-primary" href="/Messages/Edit/@comm.Id"><i class="bi bi-pencil-square"></i>Editeaza</a>
+                            <a class="btn btn-outline-primary" href="/Messages/Edit/@comm.Id"><i class="bi bi-pencil-square"></i>Editeaza</a>
 
                         </div>
 
@@ -69,8 +77,8 @@
                         </div>
 
                     </div>
+                }
                 
-
                 <br />
 
             </div>

@@ -12,7 +12,7 @@ namespace Proiect.Models
         public DateTime Date { get; set; }
 
         public int? GroupId { get; set; }
-        public string? userId { get; set; }
+        public string? UserId { get; set; }
 
         public virtual ApplicationUser? User { get; set; }
 

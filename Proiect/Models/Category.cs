@@ -10,5 +10,7 @@ namespace Proiect.Models
         [Required(ErrorMessage = "Numele categoriei este obligatoriu")]
         public string CategoryName { get; set; }
 
+        public virtual ICollection<Group>? Groups { get; set; }
+
     }
 }
