@@ -10,23 +10,24 @@ namespace Proiect.Models
 
         [Key]
         public int Id { get; set; }
+
+        [Required(ErrorMessage = "Titlul este obligatoriu!")]
         public string Name { get; set; }
+
+        [Required(ErrorMessage = "Descrierea este obligatorie!")]
         public string Description { get; set; }
 
         public DateTime Date { get; set; }
 
         public int? CategoryId { get; set; }
 
-        public string? UserId { get; set; }
-        public virtual ApplicationUser? User { get; set; }
-
         public virtual Category? Category { get; set; }
+
+        public virtual ICollection<UserGroup>? UserGroups { get; set; }
 
         public virtual ICollection<Message>? Messages { get; set; }
 
         [NotMapped]
-        public IEnumerable<SelectListItem>? Categ { get; set; }
-
-        public ICollection<UserGroupModerators>? UserGroupModerators { get; set; }
+        public IEnumerable<SelectListItem>? AllCategories { get; set; }
     }
 }

@@ -10,6 +10,7 @@ using System.Collections.Generic;
 
 namespace Proiect.Controllers
 {
+    [Authorize]
     public class GroupsController : Controller
     {
         private readonly ApplicationDbContext db;
@@ -20,184 +21,14 @@ namespace Proiect.Controllers
         public GroupsController(
         ApplicationDbContext context,
         UserManager<ApplicationUser> userManager,
-        RoleManager<IdentityRole> roleManager
-        )
+        RoleManager<IdentityRole> roleManager)
         {
             db = context;
             _userManager = userManager;
             _roleManager = roleManager;
         }
-        [Authorize(Roles = "User,Admin")]
-        public IActionResult Index()
-        {
-            var groups = db.Groups.Include("Category").Include("User");
 
-            if (TempData.ContainsKey("message"))
-            {
-                ViewBag.Message = TempData["message"];
-            }
-            ViewBag.Groups = groups;
-
-
-            return View();
-        }
-
-        private void SetAccessRights(int id)
-        {
-            var curentUser = _userManager.GetUserId(User);
-
-            ViewBag.curentUser = curentUser;
-            ViewBag.alreadyJoined = AlreadyJoined(id, curentUser);
-            ViewBag.isModerator = IsModerator(id, curentUser);
-            ViewBag.isAdmin = User.IsInRole("Admin");
-        }
-
-        public IActionResult Show(int id)
-        {
-            Group group = db.Groups.Include("Category")
-                                   .Include("User")
-                                   .Include("Messages")
-                                   .Include("Messages.User")
-                                   .Where(grp => grp.Id == id).First();
-
-            SetAccessRights(id);
-
-            return View(group);
-        }
-
-        [HttpPost]
-        public IActionResult Show([FromForm] Message message)
-        {
-            message.Date = DateTime.Now;
-            message.UserId = _userManager.GetUserId(User);
-
-
-            if (ModelState.IsValid)
-            {
-                db.Messages.Add(message);
-                db.SaveChanges();
-                return Redirect("/Groups/Show/" + message.GroupId);
-            }
-
-            else
-            {
-                Group art = db.Groups.Include("Category").Include("Messages").Include("User").Include("Messages.User")
-                               .Where(art => art.Id == message.GroupId)
-                               .First();
-
-                SetAccessRights((int)message.GroupId);
-
-                return View(art);
-            }
-        }
-
-        [Authorize(Roles = "User,Admin")]
-        public IActionResult New()
-        {
-            Group group = new Group();
-            
-            group.Categ = GetAllCategories();
-            return View(group);
-        }
-        [HttpPost]
-        public IActionResult New(Group group)
-        {
-            group.Date = DateTime.Now;
-            group.UserId = _userManager.GetUserId(User);
-            UserGroupModerators ugr = new UserGroupModerators();
-            
-            if (ModelState.IsValid)
-            {
-                db.Groups.Add(group);
-                
-                db.SaveChanges();
-
-                ugr.UserId = _userManager.GetUserId(User);
-                ugr.GroupId = group.Id;
-                ugr.isModerator = true;
-                db.UserGroupModerators.Add(ugr);
-
-                db.SaveChanges();
-
-
-                /**/
-                TempData["message"] = "Grupul a fost adaugat";
-                return RedirectToAction("Index");
-            }
-
-           
-            else
-            {
-                group.Categ = GetAllCategories();
-                return View(group);
-            }
-            
-        }
-
-        public IActionResult Edit(int id)
-        {
-            if (IsModerator(id, _userManager.GetUserId(User)) == true || User.IsInRole("Admin"))
-            {
-                Group group = db.Groups.Include("Category").Where(grp => grp.Id == id).First();
-
-                group.Categ = GetAllCategories();
-
-                return View(group);
-            }
-
-            TempData["message"] = "Nu aveti dreptul de a edita acest grup!";
-
-            return RedirectToAction("Index");
-        }
-
-        // Se adauga articolul modificat in baza de date
-        [HttpPost]
-        public IActionResult Edit(int id, Group requestGroup)
-        {
-            Group group = db.Groups.Include("Category").Where(grp => grp.Id == id).First();
-            requestGroup.Categ = GetAllCategories();
-
-            if (ModelState.IsValid)
-            {
-                
-                    group.Name = requestGroup.Name;
-                    group.Description = requestGroup.Description;
-                    group.CategoryId = requestGroup.CategoryId;
-                    TempData["message"] = "Articolul a fost modificat";
-                    db.SaveChanges();
-                    return RedirectToAction("Index");
-
-            }
-            else
-            {
-                return View(requestGroup);
-            }
-        }
-        [HttpPost]
-        public ActionResult Delete(int id)
-        {
-            if (IsModerator(id,_userManager.GetUserId(User)) == true || User.IsInRole("Admin"))
-            {
-
-                Group article = db.Groups.Include("Messages").Where(art => art.Id == id).First();
-                UserGroupModerators ugm = db.UserGroupModerators.Where(art => art.GroupId == id).First();
-
-
-
-                db.Groups.Remove(article);
-                db.SaveChanges();
-                TempData["message"] = "Grupul a fost sters";
-            }
-            else {
-                TempData["message"] = "Nu aveti dreptul de a sterge acest grup!";
-            }
-            
-            
-           
-            return RedirectToAction("Index");
-        }
-
-
+        //  Functii ajutatoare
         [NonAction]
         public IEnumerable<SelectListItem> GetAllCategories()
         {
@@ -219,62 +50,229 @@ namespace Proiect.Controllers
                     Text = category.CategoryName.ToString()
                 });
             }
-            
+
             return selectList;
         }
-        public bool IsModerator(int GroupId,string UserId)
-        {
-            UserGroupModerators? ugr = db.UserGroupModerators
-                               .Where(art => art.GroupId == GroupId)
-                               .Where(art=>art.UserId==UserId)
-                               .FirstOrDefault();
-            if (ugr == null)
-                return false;
-            if (ugr.isModerator == false)
-                return false;
 
-            return true;
+        [NonAction]
+        public UserGroup? GetUserGroup(int groupId, string userId)
+        {
+            UserGroup? userGroup = db.UserGroups.Where(ug => ug.GroupId == groupId)
+                                                .Where(ug => ug.UserId == userId)
+                                                .FirstOrDefault();
+
+            return userGroup;
         }
 
-        public bool AlreadyJoined(int GroupId,string UserId)
+        [NonAction]
+        private void SetAccessRights(int id)
         {
-            UserGroupModerators? ugr = db.UserGroupModerators
-                                        .Where(ugr => ugr.GroupId == GroupId)
-                                        .Where(ugr => ugr.UserId == UserId)
-                                        .FirstOrDefault();
+            var curentUser = _userManager.GetUserId(User);
 
-            if (ugr == null) 
-                return false;
-
-            return true;
+            ViewBag.curentUser = curentUser;
+            ViewBag.userGroup = GetUserGroup(id, curentUser);
+            ViewBag.isAdmin = User.IsInRole("Admin");
         }
 
-
-        public IActionResult IndexNou()
+        //  Partea de CRUD
+        public IActionResult Index()
         {
+            var groups = db.Groups.Include("Category");
+
+            if (TempData.ContainsKey("message"))
+            {
+                ViewBag.Message = TempData["message"];
+            }
+            ViewBag.Groups = groups;
+
             return View();
         }
 
+        public IActionResult Show(int id)
+        {
+            Group? group = db.Groups.Include("Category")
+                                    .Include("Messages")
+                                    .Include("Messages.User")
+                                    .Where(grp => grp.Id == id)
+                                    .FirstOrDefault();
+
+            if (group == null)
+                return RedirectToAction("Index");
+
+            SetAccessRights(id);
+
+            return View(group);
+        }
+
+        [HttpPost]
+        public IActionResult Show([FromForm] Message message)
+        {
+            message.Date = DateTime.Now;
+            message.UserId = _userManager.GetUserId(User);
+
+            if (ModelState.IsValid)
+            {
+                db.Messages.Add(message);
+                db.SaveChanges();
+
+                return RedirectToAction("Show", message.GroupId);
+            }
+
+            Group group = db.Groups.Include("Category")
+                                   .Include("Messages")
+                                   .Include("Messages.User")
+                                   .Where(grp => grp.Id == message.GroupId)
+                                   .First();
+
+            SetAccessRights((int)message.GroupId);
+
+            return View(group);
+        }
+
+        public IActionResult New()
+        {
+            Group group = new Group();
+            
+            group.AllCategories = GetAllCategories();
+
+            return View(group);
+        }
+
+        [HttpPost]
+        public IActionResult New(Group group)
+        {
+            group.Date = DateTime.Now;
+            UserGroup ug = new UserGroup();
+            
+            if (ModelState.IsValid)
+            {
+                db.Groups.Add(group);
+                db.SaveChanges();
+
+                ug.UserId = _userManager.GetUserId(User);
+                ug.GroupId = group.Id;
+                ug.IsModerator = true;
+                ug.IsAccepted = true;
+                db.UserGroups.Add(ug);
+                db.SaveChanges();
+
+                TempData["message"] = "Grupul a fost adaugat";
+
+                return RedirectToAction("Index");
+            }
+
+            group.AllCategories = GetAllCategories();
+
+            return View(group);
+        }
+
+        public IActionResult Edit(int id)
+        {
+            Group? group = db.Groups.Include("Category")
+                                    .Include("Messages")
+                                    .Include("Messages.User")
+                                    .Where(grp => grp.Id == id)
+                                    .FirstOrDefault();
+
+            if (group == null)
+                return RedirectToAction("Index");
+
+            UserGroup? userGroup = GetUserGroup(id, _userManager.GetUserId(User));
+
+            if ((userGroup != null && userGroup.IsModerator) || User.IsInRole("Admin"))
+            {
+                if (group == null)
+                    return RedirectToAction("Index");
+
+                group.AllCategories = GetAllCategories();
+
+                return View(group);
+            }
+
+            TempData["message"] = "Nu aveti dreptul de a edita acest grup!";
+
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        public IActionResult Edit(int id, Group requestGroup)
+        {
+            Group group = db.Groups.Where(grp => grp.Id == id)
+                                   .First();
+
+            if (ModelState.IsValid)
+            {
+                group.Name = requestGroup.Name;
+                group.Description = requestGroup.Description;
+                group.CategoryId = requestGroup.CategoryId;
+                db.SaveChanges();
+
+                TempData["message"] = "Articolul a fost modificat!";
+
+                return RedirectToAction("Index");
+            }
+
+            requestGroup.AllCategories = GetAllCategories();
+
+            return View(requestGroup);
+        }
+
+        [HttpPost]
+        public IActionResult Delete(int id)
+        {
+            UserGroup userGroup = GetUserGroup(id, _userManager.GetUserId(User));
+
+            if ((userGroup != null && userGroup.IsModerator) || User.IsInRole("Admin"))
+            {
+
+                Group group = db.Groups.Include("Messages")
+                                       .Where(grp => grp.Id == id)
+                                       .First();
+
+                db.Groups.Remove(group);
+                db.SaveChanges();
+
+                TempData["message"] = "Grupul a fost sters";
+            }
+            else
+            {
+                TempData["message"] = "Nu aveti dreptul de a sterge acest grup!";
+            }
+            
+            return RedirectToAction("Index");
+        }
 
         public IActionResult ShowMembers(int id)
         {
-            //am folosit hash ca sa nu se repete id-urile
+            Group? group = db.Groups.Where(grp => grp.Id == id)
+                                    .FirstOrDefault();
+
+            if (group == null)
+                return RedirectToAction("Index");
+
+            var users = db.UserGroups.Include("User");
+            ViewBag.users = users;
+
+            SetAccessRights(id);
+
+            /*//  am folosit hash ca sa nu se repete id-urile
             HashSet<string> usersIdHash = new HashSet<string>();
-            //aici le-am luat pe toate din UserGroupModerators
-            var usersid = from ugm in db.UserGroupModerators
-                          where ugm.GroupId == id
-                          select ugm.UserId;
-            foreach (var i in usersid)
+
+            //  aici le-am luat pe toate din UserGroup
+            var usersId = from ug in db.UserGroups
+                          where ug.GroupId == id
+                          select ug.UserId;
+
+            foreach (var i in usersId)
             {
                 usersIdHash.Add(i.ToString());
             }
-                
 
             List<string> userName = new List<string>();
             foreach (var i in usersIdHash)
-
             {
-                var name = db.ApplicationUser.Where(ust => ust.Id == i).First();
+                var name = db.ApplicationUser.Where(usr => usr.Id == i)
+                                             .First();
                 userName.Add(name.UserName);
 
             }
@@ -282,35 +280,33 @@ namespace Proiect.Controllers
             ViewBag.Users = userName;
             ViewBag.GroupId = id;
 
-            //un dictionar
-            foreach(var u in userName)
-                ViewData[u] = db.ApplicationUser.Where(usr=>usr.UserName==u).First().Id;
-                
+            //  un dictionar
+            foreach (var u in userName)
+                ViewData[u] = db.ApplicationUser.Where(usr => usr.UserName == u)
+                                                .First().Id;*/
 
             return View();
         }
 
-
         [HttpPost]
-        public ActionResult Join(int id)
+        public IActionResult Join(int id)
         {
             var curentUser = _userManager.GetUserId(User);
 
             //  verific daca userul face deja parte din grupul
             //  in care vrea sa dea join
-            UserGroupModerators? ugm = db.UserGroupModerators
-                                .Where(ug => ug.GroupId == id)
-                                .Where(ug => ug.UserId == curentUser)
-                                .FirstOrDefault();
+            UserGroup? ug = GetUserGroup(id, curentUser);
 
-            if (ugm == null)
+            if (ug == null)
             {
-                ugm = new UserGroupModerators();
-                ugm.UserId = curentUser;
-                ugm.GroupId = id;
-                ugm.isModerator = false;
-                db.UserGroupModerators.Add(ugm);
+                ug = new UserGroup();
+                ug.UserId = curentUser;
+                ug.GroupId = id;
+                ug.IsModerator = false;
+                ug.IsAccepted = false;
+                db.UserGroups.Add(ug);
                 db.SaveChanges();
+
                 TempData["message"] = "Welcome in the group!";
             }
             else
@@ -324,27 +320,25 @@ namespace Proiect.Controllers
         {
             var curentUser = _userManager.GetUserId(User);
 
-            UserGroupModerators? ugm = db.UserGroupModerators
-                                         .Where(ug => ug.GroupId == id)
-                                         .Where(ug => ug.UserId == curentUser)
-                                         .FirstOrDefault();
+            UserGroup? ug = GetUserGroup(id, curentUser);
 
-            int nrModerators = db.UserGroupModerators
-                                 .Where(ug => ug.GroupId == id)
-                                 .Where(ug => ug.isModerator == true)
-                                 .Count();
+            int nrModerators = db.UserGroups.Where(ug => ug.GroupId == id)
+                                            .Where(ug => ug.IsModerator == true)
+                                            .Count();
                                 
-            if(ugm != null)
+            if(ug != null)
             {
-                if (nrModerators > 1)
+                if (ug.IsModerator && nrModerators < 2)
                 {
-                    db.UserGroupModerators.Remove(ugm);
+                    TempData["message"] = "Esti ultimul moderator al grupului!";
+                }
+                else
+                {
+                    db.UserGroups.Remove(ug);
                     db.SaveChanges();
 
                     TempData["message"] = "Ai parasit grupul!";
                 }
-                else
-                    TempData["message"] = "Esti ultimul moderator al grupului!";
 
             }
             else
@@ -353,30 +347,67 @@ namespace Proiect.Controllers
             return RedirectToAction("Index");
         }
 
-        public ActionResult MakeModerator(int groupId,string userId)
+        [HttpPost]
+        public IActionResult MakeModerator(int groupId, string userId)
         {
-            UserGroupModerators ugm = db.UserGroupModerators.Where(grai=>grai.GroupId==groupId).Where(hasa=>hasa.UserId==userId).First();
+            UserGroup ug = GetUserGroup(groupId, userId);
 
-            ugm.isModerator= true;
+            ug.IsModerator = true;
             db.SaveChanges();
-            TempData["message"] = "Adaugare in grupul de moderatori realizata !";
-            return RedirectToAction("Index");
 
+            TempData["message"] = "Adaugare in grupul de moderatori realizata!";
+
+            return RedirectToAction("Index");
         }
-        public ActionResult ShowMy()
+
+        [HttpPost]
+        public IActionResult RemoveUser(int groupId, string userId)
         {
-           var curentUserId = _userManager.GetUserId(User);
-           var groupIds = db.UserGroupModerators.Where(ugm => ugm.UserId == curentUserId);
-            List<string> numeGrupuri = new List<string>();
-            foreach (var groupid in groupIds) {
-                var grup = db.Groups.Where(gru => gru.Id == groupid.GroupId).First().Name;
-                numeGrupuri.Add(grup);
-            }
-            ViewBag.numeGrupuri = numeGrupuri;
+            UserGroup ug = GetUserGroup(groupId, userId);
+
+            db.UserGroups.Remove(ug);
+            db.SaveChanges();
+
+            TempData["message"] = "User - ul a fost eliminat din grup!";
+
+            return RedirectToAction("Index");
+        }
+
+        public IActionResult ShowMy()
+        {
+            var curentUserId = _userManager.GetUserId(User);
+            var groups = db.UserGroups.Include("Group")
+                                      .Where(ug => ug.UserId == curentUserId);
+
+            ViewBag.groups = groups;
+
             return View();
         }
-    }
 
+        public IActionResult JoinRequests(int id)
+        {
+            var users = db.UserGroups.Include("User")
+                                     .Where(u => u.IsAccepted == false);
+
+            ViewBag.users = users;
+
+            SetAccessRights(id);
+
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult AcceptRequest(int groupId, string userId)
+        {
+            UserGroup ug = GetUserGroup(groupId, userId);
+
+            ug.IsAccepted = true;
+            db.SaveChanges();
+
+            return RedirectToAction("JoinRequests", groupId);
+        }
+
+    }
 }
 
 

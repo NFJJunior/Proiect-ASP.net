@@ -1,21 +1,21 @@
 ﻿@model Proiect.Models.Group
 
-
 @* Afisarea unui grup impreuna cu categoria din care face *@
 
-<br />
 <div class="card">
     @Html.Partial("GroupInfo", Model)
     <div class="d-flex flex-row justify-content-between p-3 border-1 border-top">
-        @if(ViewBag.isModerator || ViewBag.isAdmin)
+        @if ((ViewBag.userGroup != null && ViewBag.userGroup.IsModerator) || ViewBag.isAdmin)
         {
             <a class="btn btn-success" href="/Groups/Edit/@Model.Id">Editeaza grup</a>
+
+            <a class="btn btn-success" href="/Groups/JoinRequests/@Model.Id">Cereri de join</a>
         }
 
         <a class="btn btn-success" href="/Groups/ShowMembers/@Model.Id">Afiseaza membri grup</a>
 
         @{
-            if(ViewBag.alreadyJoined == false)
+            if(ViewBag.userGroup == null)
             {
                 <form method="post" action="/Groups/Join/@Model.Id">
 
@@ -33,7 +33,7 @@
             }
         }
         
-        @if(ViewBag.isModerator || ViewBag.isAdmin)
+        @if ((ViewBag.userGroup != null && ViewBag.userGroup.IsModerator) || ViewBag.isAdmin)
         {
             <form method="post" action="/Groups/Delete/@Model.Id">
 
@@ -47,7 +47,7 @@
 <br />
 <br />
 
-@foreach (var comm in Model.Messages)
+@foreach (var msg in Model.Messages)
 {
     <div class="container">
         <div class="row">
@@ -57,28 +57,27 @@
 
                 <div>
 
-                    <p>@comm.Content</p>
-                    <small>@comm.Date</small>
+                    <p>@msg.Content</p>
+                    <small>@msg.Date</small>
                     <br />
-                    <strong><i class="bi bi-person"></i> @comm.User.UserName</strong>
+                    <strong><i class="bi bi-person"></i> @msg.User.UserName</strong>
 
                 </div>
                 <br />
 
-                @if (Model.UserId == ViewBag.curentUser || ViewBag.isAdmin)
+                @if (msg.UserId == ViewBag.curentUser || ViewBag.isAdmin)
                 {
-
                     <div class="d-flex">
 
                         <div>
 
-                            <a class="btn btn-outline-primary" href="/Messages/Edit/@comm.Id"><i class="bi bi-pencil-square"></i>Editeaza</a>
+                            <a class="btn btn-outline-primary" href="/Messages/Edit/@msg.Id"><i class="bi bi-pencil-square"></i>Editeaza</a>
 
                         </div>
 
                         <div>
 
-                            <form method="post" action="/Messages/Delete/@comm.Id">
+                            <form method="post" action="/Messages/Delete/@msg.Id">
 
                                 <button class="btn btn-outline-danger" type="submit"><i class="bi bi-trash"></i>Sterge</button>
 
@@ -88,7 +87,6 @@
 
                     </div>
                 }
-                
                 <br />
 
             </div>
@@ -103,43 +101,46 @@
 
 @* Afisarea formularului in care se poate adauga un comentariu *@
 
-<div class="container">
+@if (ViewBag.userGroup != null && ViewBag.userGroup.IsAccepted)
+{
+    <div class="container">
 
-    <div class="row">
+        <div class="row">
 
-        <div class="col-md-2"></div>
+            <div class="col-md-2"></div>
 
-        <div class="col-md-8">
+            <div class="col-md-8">
 
-            <div class="card">
+                <div class="card">
 
-                <form method="post" action="/Groups/Show/@Model.Id">
+                    <form method="post" action="/Groups/Show/@Model.Id">
 
-                    <div class="card-body">
+                        <div class="card-body">
 
-                        <input type="hidden" name="GroupId" value="@Model.Id" />
+                            <input type="hidden" name="GroupId" value="@Model.Id" />
 
-                        <label>Continut comentariu</label>
-                        <br />
+                            <label>Continut comentariu</label>
+                            <br />
 
-                        <textarea class="form-control" name="Content"></textarea>
+                            <textarea class="form-control" name="Content"></textarea>
 
-                        @Html.ValidationMessage("Content", null, new { @class = "text-danger"})
+                            @Html.ValidationMessage("Content", null, new { @class = "text-danger"})
 
-                        <br /><br />
+                            <br /><br />
 
-                        <button class="btn btn-success " type="submit">Adauga mesaj</button>
+                            <button class="btn btn-success " type="submit">Adauga mesaj</button>
 
-                    </div>
+                        </div>
 
-                </form>
+                    </form>
+
+                </div>
 
             </div>
 
+            <div class="col-md-2"></div>
+
         </div>
 
-        <div class="col-md-2"></div>
-
     </div>
-
-</div>
+}

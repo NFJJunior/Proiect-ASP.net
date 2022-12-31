@@ -178,6 +178,12 @@ namespace Proiect.Data.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("bit");
 
+                    b.Property<string>("FirstName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("LastName")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("bit");
 
@@ -263,14 +269,9 @@ namespace Proiect.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
-
                     b.HasKey("Id");
 
                     b.HasIndex("CategoryId");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("Groups");
                 });
@@ -287,7 +288,7 @@ namespace Proiect.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("Date")
+                    b.Property<DateTime?>("Date")
                         .HasColumnType("datetime2");
 
                     b.Property<int?>("GroupId")
@@ -305,7 +306,7 @@ namespace Proiect.Data.Migrations
                     b.ToTable("Messages");
                 });
 
-            modelBuilder.Entity("Proiect.Models.UserGroupModerators", b =>
+            modelBuilder.Entity("Proiect.Models.UserGroup", b =>
                 {
                     b.Property<string>("UserId")
                         .HasColumnType("nvarchar(450)");
@@ -313,14 +314,17 @@ namespace Proiect.Data.Migrations
                     b.Property<int>("GroupId")
                         .HasColumnType("int");
 
-                    b.Property<bool>("isModerator")
+                    b.Property<bool>("IsAccepted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsModerator")
                         .HasColumnType("bit");
 
                     b.HasKey("UserId", "GroupId");
 
                     b.HasIndex("GroupId");
 
-                    b.ToTable("UserGroupModerators");
+                    b.ToTable("UserGroups");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -380,13 +384,7 @@ namespace Proiect.Data.Migrations
                         .WithMany("Groups")
                         .HasForeignKey("CategoryId");
 
-                    b.HasOne("Proiect.Models.ApplicationUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId");
-
                     b.Navigation("Category");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Proiect.Models.Message", b =>
@@ -396,7 +394,7 @@ namespace Proiect.Data.Migrations
                         .HasForeignKey("GroupId");
 
                     b.HasOne("Proiect.Models.ApplicationUser", "User")
-                        .WithMany()
+                        .WithMany("Message")
                         .HasForeignKey("UserId");
 
                     b.Navigation("Group");
@@ -404,16 +402,16 @@ namespace Proiect.Data.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Proiect.Models.UserGroupModerators", b =>
+            modelBuilder.Entity("Proiect.Models.UserGroup", b =>
                 {
                     b.HasOne("Proiect.Models.Group", "Group")
-                        .WithMany("UserGroupModerators")
+                        .WithMany("UserGroups")
                         .HasForeignKey("GroupId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Proiect.Models.ApplicationUser", "User")
-                        .WithMany("UserGroupModerators")
+                        .WithMany("UserGroups")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -425,7 +423,9 @@ namespace Proiect.Data.Migrations
 
             modelBuilder.Entity("Proiect.Models.ApplicationUser", b =>
                 {
-                    b.Navigation("UserGroupModerators");
+                    b.Navigation("Message");
+
+                    b.Navigation("UserGroups");
                 });
 
             modelBuilder.Entity("Proiect.Models.Category", b =>
@@ -437,7 +437,7 @@ namespace Proiect.Data.Migrations
                 {
                     b.Navigation("Messages");
 
-                    b.Navigation("UserGroupModerators");
+                    b.Navigation("UserGroups");
                 });
 #pragma warning restore 612, 618
         }

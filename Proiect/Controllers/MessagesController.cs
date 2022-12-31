@@ -7,6 +7,7 @@ using Proiect.Models;
 
 namespace Proiect.Controllers
 {
+    [Authorize]
     public class MessagesController : Controller
     {
         private readonly ApplicationDbContext db;
@@ -27,7 +28,10 @@ namespace Proiect.Controllers
 
         public IActionResult Edit(int id)
         {
-            Message msg = db.Messages.Find(id);
+            Message? msg = db.Messages.Find(id);
+
+            if (msg == null)
+                return Redirect("/Groups/Index");
 
             if (msg.UserId == _userManager.GetUserId(User) || User.IsInRole("Admin"))
                 return View(msg);
@@ -38,29 +42,25 @@ namespace Proiect.Controllers
         }
 
         [HttpPost]
-
         public IActionResult Edit(int id, Message requestComment)
         {
-            Message comm = db.Messages.Find(id);
+            Message msg = db.Messages.Find(id);
 
             if (ModelState.IsValid)
             {    
-                    comm.Content = requestComment.Content;
-                    db.SaveChanges();
-                    return Redirect("/Groups/Show/" + comm.GroupId);
-            }
-            else
-            {
-                return View(requestComment);
-            }
+                msg.Content = requestComment.Content;
+                db.SaveChanges();
 
+                return Redirect("/Groups/Show/" + msg.GroupId);
+            }
+            
+            return View(requestComment);
         }
 
         [HttpPost]
         public IActionResult Delete(int id)
         {
             Message msg = db.Messages.Find(id);
-
 
             if (msg.UserId == _userManager.GetUserId(User) || User.IsInRole("Admin"))
             {

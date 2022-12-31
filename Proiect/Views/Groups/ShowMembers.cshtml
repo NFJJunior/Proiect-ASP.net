@@ -1,34 +1,62 @@
-﻿
-@{
+﻿@{
     ViewBag.Title = "ShowMembers";
 }
-<h2>Afisare membri</h2>
-<br />
 
 @if (ViewBag.Message != null)
 {
     <h2 class="alert-success p-3 rounded-3 text-center mb-5">@ViewBag.Message</h2>
 }
 
-@foreach (string name in ViewBag.Users){
+<h2>Afisare moderatori</h2>
+<br />
 
-    <div class="card-body">
-        <h3 class="card-title alert-success py-3 px-3 rounded-2">@name</h3>
-        <h3 class="card-title alert-success py-3 px-3 rounded-2">@ViewData[@name]</h3>
+@foreach (Proiect.Models.UserGroup user in ViewBag.users)
+{
+    if (user.IsModerator)
+    {
+        <div class="card-body">
+            <h3 class="card-title alert-success py-3 px-3 rounded-2">@user.User.UserName</h3>
 
-        @foreach (string userId in ViewBag.usersIdHash)
-        {
-            if ((string)userId == (string)@ViewData[@name]){
-                
-                <form method="post" asp-route-groupId="@ViewBag.GroupId" asp-route-userId="@userId" asp-action="MakeModerator">
+            @if (ViewBag.isAdmin)
+            {
+                <h3 class="card-title alert-success py-3 px-3 rounded-2">@user.UserId</h3>
+            }
+        </div>
+    }
+}
+<br /><br />
+
+<h2>Afisare useri</h2>
+<br />
+
+@foreach (Proiect.Models.UserGroup user in ViewBag.users)
+{
+    if (! user.IsModerator && user.IsAccepted)
+    {
+        <div class="card-body">
+            <h3 class="card-title alert-success py-3 px-3 rounded-2">@user.User.UserName</h3>
+
+            @if (ViewBag.isAdmin)
+            {
+                <h3 class="card-title alert-success py-3 px-3 rounded-2">@user.UserId</h3>
+            }
+
+            @if ((ViewBag.userGroup != null && ViewBag.userGroup.IsModerator) || ViewBag.isAdmin)
+            {
+                <form method="post" asp-route-groupId="@user.GroupId" asp-route-userId="@user.UserId" asp-action="MakeModerator">
 
                     <button class="btn btn-danger" type="submit">Make moderator</button>
 
                 </form>
-            }
-       
-        }
+                <br />
 
-    </div>
-    
+                <form method="post" asp-route-groupId="@user.GroupId" asp-route-userId="@user.UserId" asp-action="RemoveUser">
+
+                    <button class="btn btn-danger" type="submit">Remove user</button>
+
+                </form>
+                <br />
+            }
+        </div>
+    }
 }

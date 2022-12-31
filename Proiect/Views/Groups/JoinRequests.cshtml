@@ -1,0 +1,26 @@
+﻿@{
+    ViewBag.Title = "ShowMembers";
+}
+
+<h2>Cereri de join</h2>
+<br />
+
+@foreach (var user in ViewBag.users)
+{
+    <div class="card-body">
+        <h3 class="card-title alert-success py-3 px-3 rounded-2">@user.User.UserName</h3>
+
+        @if (ViewBag.isAdmin)
+        {
+            <h3 class="card-title alert-success py-3 px-3 rounded-2">@user.UserId</h3>
+        }
+
+        <form method="post" asp-route-groupId="@user.GroupId" asp-route-userId="@user.UserId" asp-action="AcceptRequest">
+
+            <button class="btn btn-danger" type="submit">Accepta cererea de join</button>
+
+        </form>
+        <br />
+    </div>
+
+}

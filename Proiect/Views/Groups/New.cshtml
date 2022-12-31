@@ -1,8 +1,8 @@
 ﻿@model Proiect.Models.Group
 
-
 <h2 class="text-center mt-5">Adaugare grup</h2>
 <br />
+
 <div class="container mt-5">
     <div class="row">
         <div class="col-6 offset-3">
@@ -32,7 +32,7 @@
                 <br />
 
                 <label>Selectati categoria</label>
-                @Html.DropDownListFor(m => m.CategoryId, new SelectList(Model.Categ, "Value", "Text"),
+                @Html.DropDownListFor(m => m.CategoryId, new SelectList(Model.AllCategories, "Value", "Text"),
             "Selectati categoria", new { @class = "form-control" })
 
                 @Html.ValidationMessageFor(m => m.CategoryId, null, new { @class = "text-danger" })
