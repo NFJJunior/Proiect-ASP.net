@@ -27,18 +27,7 @@
                 @Html.Label("Description", "Descriere Grup")
                 <br />
                 @Html.TextArea("Description", null, new { @class = "form-control" })
-                @section Scripts{
-            $(document).ready(function() {
-            $('.summernote').summernote({
-            height: 300,
-            minHeight: 200,
-            focus: true,
-            });
-            });
-            }
-            
-
-
+                
                 @Html.TextArea("Description", null, new { @class = "summernote" })
 
                 @Html.ValidationMessage("Description", null, new { @class = "text-danger" })
