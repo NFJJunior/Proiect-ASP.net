@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System.Collections.Generic;
+using Ganss.Xss;
 
 namespace Proiect.Controllers
 {
@@ -166,11 +167,13 @@ namespace Proiect.Controllers
         [HttpPost]
         public IActionResult New(Group group)
         {
+            var sanitizer = new HtmlSanitizer();
             group.Date = DateTime.Now;
             UserGroup ug = new UserGroup();
             
             if (ModelState.IsValid)
             {
+                group.Description = sanitizer.Sanitize(group.Description);
                 db.Groups.Add(group);
                 db.SaveChanges();
 
@@ -222,11 +225,13 @@ namespace Proiect.Controllers
         [HttpPost]
         public IActionResult Edit(int id, Group requestGroup)
         {
+            var sanitizer = new HtmlSanitizer();
             Group group = db.Groups.Where(grp => grp.Id == id)
                                    .First();
 
             if (ModelState.IsValid)
             {
+                requestGroup.Description=sanitizer.Sanitize(requestGroup.Description);
                 group.Name = requestGroup.Name;
                 group.Description = requestGroup.Description;
                 group.CategoryId = requestGroup.CategoryId;
