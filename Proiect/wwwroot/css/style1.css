@@ -72,3 +72,12 @@
 .bg-brown {
     background-color: #1c0d07 !important;
 }
+.center {
+    margin: auto;
+    width: 50%;
+    text-align:center;
+    padding: 10px;
+}
+.bg-lightbrown {
+    background-color: #28150d;
+}
