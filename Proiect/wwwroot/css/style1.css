@@ -81,3 +81,31 @@
 .bg-lightbrown {
     background-color: #28150d;
 }
+.bg-indexGroups {
+    background-color: #5b6774;
+}
+.wallpaperIndex {
+    background: url("https://w0.peakpx.com/wallpaper/291/424/HD-wallpaper-plain-chocolate-brown-background-brown-aesthetic.jpg");
+}
+.md-1{
+    margin-bottom:3px;
+}
+.card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    word-wrap: break-word;
+    background-color: #fff;
+    background-clip: border-box;
+    border: 1px solid rgba(0, 0, 0, 0.125);
+    border-radius: 0.25rem;
+}
+
+.butonMaro {
+    background-color: #024200;
+    border: none;
+    color: white;
+    padding: 20px 35px;
+    font-size: 16px;
+}

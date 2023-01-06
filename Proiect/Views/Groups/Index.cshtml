@@ -1,18 +1,24 @@
-﻿<h2>Afisare grupuri</h2>
+﻿<div class="wallpaperIndex ">
+<h2 class="center p-4 text-white">Afisare grupuri</h2>
 <br />
 
-@if (ViewBag.Message != null)
-{
-    <h2 class="alert-success p-3 rounded-3 text-center mb-5">@ViewBag.Message</h2>
-}
+
+
+<div>
+    @if (ViewBag.Message != null)
+    {
+        <h2 class="alert-success p-3 rounded-3 text-center mb-5">@ViewBag.Message</h2>
+    }
+</div>
+
 
 @foreach (Proiect.Models.Group group in ViewBag.Groups)
 {
-    <div class="card">
+    <div class="card w-50 center mb-2 ">
 
         @Html.Partial("GroupInfo", group )
             
-        <a class="btn btn-success" href="/Groups/Show/@group.Id">Afisare grup</a>
+            <a class="btn btn-info" href="/Groups/Show/@group.Id">Afisare grup</a>
         <br />
 
     </div>
@@ -20,9 +26,9 @@
 
 
 @* Afisarea paginata a articolelor *@
-<div>
+<div class="center">
     <nav aria-label="Page navigation example">
-        <ul class="pagination">
+        <ul class="pagination center justify-content-center">
             <li class="page-item">
                 <a class="page-link" href="/Groups/Index?page=1" aria-label="Previous">
                     <span aria-hidden="true">&laquo;</span>
@@ -39,4 +45,5 @@
             </li>
         </ul>
     </nav>
+</div>
 </div>

@@ -1,8 +1,10 @@
 ﻿@model Proiect.Models.Group
+<div class="wallpaperIndex">
+    <div class="bg-white w-30 center">
 
-<h2 class="text-center mt-5">Adaugare grup</h2>
+
+<h2 class="text-center p-3 text-black">Adaugare grup</h2>
 <br />
-
 
 <div class="container mt-5">
     <div class="row">
@@ -25,7 +27,6 @@
 
                 @Html.Label("Description", "Descriere Grup")
                 <br />
-                @Html.TextArea("Description", null, new { @class = "form-control" })
                 
                 @Html.TextArea("Description", null, new { @class = "summernote" })
 
@@ -43,10 +44,12 @@
 
                 <br />
 
-                <button class="btn btn-success" type="submit">Adauga grup</button>
+                        <button class="bg-info text-white btn-lg" type="submit">Adauga grup</button>
 
             }
 
         </div>
+    </div>
+</div>
     </div>
 </div>
