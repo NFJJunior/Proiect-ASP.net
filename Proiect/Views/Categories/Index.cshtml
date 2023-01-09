@@ -1,20 +1,23 @@
-﻿@{
-    ViewBag.Title = "Lista categorii";
-}
+﻿<div class="center text-white">
 
-<h2>@ViewBag.Title</h2>
-<br />
+    @{
+        ViewBag.Title = "Lista categorii";
+    }
 
-@foreach (var category in ViewBag.Categories)
-{
-    @Html.Label("CategoryName", "Denumire categorie")
-    <p>@category.CategoryName</p>
-    <a class="btn alert-success" href="/Categories/Show/@category.Id">Afisare categorie</a>
-    <a class="btn alert-success" href="/Categories/Edit/@category.Id">Editare categorie</a>
+    <h2>@ViewBag.Title</h2>
     <br />
-    <hr />
+
+    @foreach (var category in ViewBag.Categories)
+    {
+        @Html.Label("CategoryName", "Denumire categorie")
+        <p>@category.CategoryName</p>
+        <a class="btn alert-success" href="/Categories/Show/@category.Id">Afisare categorie</a>
+        <a class="btn btn-warning" href="/Categories/Edit/@category.Id">Editare categorie</a>
+        <br />
+        <hr />
+        <br />
+    }
     <br />
-}
-<br />
-<a class="btn btn-success" href="/Categories/New">Adauga o noua categorie</a>
-<br />
+    <a class="btn btn-info" href="/Categories/New">Adauga o noua categorie</a>
+    <br />
+</div>

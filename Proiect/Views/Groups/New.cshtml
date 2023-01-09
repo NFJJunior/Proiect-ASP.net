@@ -1,14 +1,13 @@
 ﻿@model Proiect.Models.Group
-<div class="wallpaperIndex">
-    <div class="bg-white w-30 center">
+<div class="wallpaperIndex vh-100">
 
 
-<h2 class="text-center p-3 text-black">Adaugare grup</h2>
+<h2 class="text-center p-5 text-white">Adaugare grup</h2>
 <br />
 
-<div class="container mt-5">
-    <div class="row">
-        <div class="col-6 offset-3">
+    <div class="container mt-5 text-white">
+        <div class="row">
+        <div class="offset-1">
 
             @using (Html.BeginForm(actionName: "New", controllerName: "Groups",
             method: FormMethod.Post))
@@ -18,7 +17,7 @@
 
                 @Html.Label("Name", "Nume Grup")
                 <br />
-                @Html.TextBox("Name", null, new { @class = "form-control" })
+                @Html.TextBox("Name", null, new { @class = "form-control " })
 
                 @Html.ValidationMessageFor(m => m.Name, "", new { @class = "text-danger" })
                 <br />
@@ -27,8 +26,8 @@
 
                 @Html.Label("Description", "Descriere Grup")
                 <br />
-                
-                @Html.TextArea("Description", null, new { @class = "summernote" })
+
+                @Html.TextBox("Description", null, new { @class = "form-control" })
 
                 @Html.ValidationMessage("Description", null, new { @class = "text-danger" })
                 <br />
@@ -50,6 +49,5 @@
 
         </div>
     </div>
-</div>
     </div>
 </div>

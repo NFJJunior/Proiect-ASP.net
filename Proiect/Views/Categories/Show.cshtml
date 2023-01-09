@@ -1,24 +1,27 @@
 ﻿@model Proiect.Models.Category
-@{
-    ViewBag.Title = "Afisare categorie";
-}
+<div class="text-white center">
+
+    @{
+        ViewBag.Title = "Afisare categorie";
+    }
 
 
-<h2>@ViewBag.Title</h2>
+    <h2>@ViewBag.Title</h2>
 
-<br />
+    <br />
 
-<p>@Model.CategoryName</p>
+    <p>@Model.CategoryName</p>
 
 
-<form method="post" action="/Categories/Delete/@Model.Id">
+    <form method="post" action="/Categories/Delete/@Model.Id">
 
-    <button class="btn btn-danger" type="submit">Sterge categoria</button>
+        <button class="btn btn-danger" type="submit">Sterge categoria</button>
 
-</form>
-<br />
-<a class="btn alert-success" href="/Categories/Index/">Afisare lista categorii</a>
+    </form>
+    <br />
+    <a class="btn alert-success" href="/Categories/Index/">Afisare lista categorii</a>
 
-<br />
-<hr />
-<br />
+    <br />
+    <hr />
+    <br />
+</div>
