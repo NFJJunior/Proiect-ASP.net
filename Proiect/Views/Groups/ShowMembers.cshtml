@@ -13,10 +13,10 @@
         <div class="card-body">
             <h3 class="card-title py-3 px-3 rounded-2">@user.User.UserName</h3>
 
-            @if (ViewBag.isAdmin)
+            @*@if (ViewBag.isAdmin)
             {
                 <h3 class="card-title py-3 px-3 rounded-2">@user.UserId</h3>
-            }
+            }*@
         </div>
     }
 }
@@ -36,10 +36,10 @@
         <div class="card-body">
             <h3 class="card-title py-3 px-3 rounded-2">@user.User.UserName</h3>
 
-            @if (ViewBag.isAdmin)
+            @*@if (ViewBag.isAdmin)
             {
                 <h3 class="card-title py-3 px-3 rounded-2">@user.UserId</h3>
-            }
+            }*@
 
             @if ((ViewBag.userGroup != null && ViewBag.userGroup.IsModerator) || ViewBag.isAdmin)
             {

@@ -6,10 +6,10 @@
     <div class="card w-50 h-25 center mb-2">
         <h4 class="py-2 px-2 rounded-2">@user.User.UserName</h4>
 
-        @if (ViewBag.isAdmin)
+        @*@if (ViewBag.isAdmin)
         {
             <h4 class="py-2 px-2 rounded-2">@user.UserId</h4>
-        }
+        }*@
 
         <form method="post" asp-route-groupId="@user.GroupId" asp-route-userId="@user.UserId" asp-action="AcceptRequest">
 

@@ -1,15 +1,15 @@
 ﻿@model Proiect.Models.Group
 
-<div class="wallpaperIndex">
-<div class="bg-white w-30 center">
 
+<div class="text-white text-center p-3">
 
-<h2 class="text-center p-3 text-black">Editare grup</h2>
+    
+<h2 >Editare grup</h2>
 <br />
 
-<div class="container mt-5">
+<div class="">
     <div class="row">
-        <div class="col-md-6 offset-3">
+        <div class="">
             @using (Html.BeginForm(actionName: "Edit", controllerName: "Groups",
             method: FormMethod.Post,
             routeValues: new { id = Model.Id }))
@@ -38,9 +38,10 @@
                 <button class="btn btn-sm btn-success" type="submit">Modifica grup</button>
 
             }
+            </div>
         </div>
-    </div>
-</div>
 
-</div>
+    </div>
+
+
 </div>

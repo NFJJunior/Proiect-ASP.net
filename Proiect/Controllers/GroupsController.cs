@@ -238,7 +238,7 @@ namespace Proiect.Controllers
                 group.CategoryId = requestGroup.CategoryId;
                 db.SaveChanges();
 
-                TempData["message"] = "Articolul a fost modificat!";
+                TempData["message"] = "Grupul a fost modificat!";
 
                 return RedirectToAction("Index");
             }
