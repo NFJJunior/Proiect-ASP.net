@@ -78,14 +78,15 @@ namespace Proiect.Controllers
         //  Partea de CRUD
         public IActionResult Index()
         {
-            // Alegem sa afisam 3 grupuri pe pagina
-            int _perPage = 3;
             var groups = db.Groups.Include("Category");
 
             if (TempData.ContainsKey("message"))
             {
                 ViewBag.Message = TempData["message"];
             }
+
+            // Alegem sa afisam 3 grupuri pe pagina
+            int _perPage = 3;
             int totalItems = groups.Count();
 
             // Se preia pagina curenta din View-ul asociat
@@ -280,40 +281,11 @@ namespace Proiect.Controllers
             if (group == null)
                 return RedirectToAction("Index");
 
-            var users = db.UserGroups.Include("User");
+            var users = db.UserGroups.Include("User")
+                                     .Where(ug => ug.GroupId == id);
             ViewBag.users = users;
 
             SetAccessRights(id);
-
-            /*//  am folosit hash ca sa nu se repete id-urile
-            HashSet<string> usersIdHash = new HashSet<string>();
-
-            //  aici le-am luat pe toate din UserGroup
-            var usersId = from ug in db.UserGroups
-                          where ug.GroupId == id
-                          select ug.UserId;
-
-            foreach (var i in usersId)
-            {
-                usersIdHash.Add(i.ToString());
-            }
-
-            List<string> userName = new List<string>();
-            foreach (var i in usersIdHash)
-            {
-                var name = db.ApplicationUser.Where(usr => usr.Id == i)
-                                             .First();
-                userName.Add(name.UserName);
-
-            }
-            ViewBag.usersIdHash = usersIdHash;
-            ViewBag.Users = userName;
-            ViewBag.GroupId = id;
-
-            //  un dictionar
-            foreach (var u in userName)
-                ViewData[u] = db.ApplicationUser.Where(usr => usr.UserName == u)
-                                                .First().Id;*/
 
             return View();
         }
@@ -337,7 +309,7 @@ namespace Proiect.Controllers
                 db.UserGroups.Add(ug);
                 db.SaveChanges();
 
-                TempData["message"] = "Welcome in the group!";
+                /*TempData["message"] = "Welcome in the group!";*/
             }
             else
                 TempData["message"] = "Esti deja in grup vere!";
@@ -407,9 +379,35 @@ namespace Proiect.Controllers
         {
             var curentUserId = _userManager.GetUserId(User);
             var groups = db.UserGroups.Include("Group")
-                                      .Where(ug => ug.UserId == curentUserId).Where(usr=>usr.IsAccepted==true);
+                                      .Where(ug => ug.UserId == curentUserId)
+                                      .Where(ug => ug.IsAccepted == true);
 
-            ViewBag.groups = groups;
+            // Alegem sa afisam 3 grupuri pe pagina
+            int _perPage = 3;
+            int totalItems = groups.Count();
+
+            // Se preia pagina curenta din View-ul asociat
+            // Numarul paginii este valoarea parametrului page din ruta
+            // /Groups/Index?page=valoare
+            var currentPage = Convert.ToInt32(HttpContext.Request.Query["page"]);
+            // Pentru prima pagina offsetul o sa fie zero
+            // Pentru pagina 2 o sa fie 3
+            // Asadar offsetul este egal cu numarul de grupuri care au fost deja afisate pe paginile anterioare
+            var offset = 0;
+            // Se calculeaza offsetul in functie de numarul paginii la care suntem
+            if (!currentPage.Equals(0))
+            {
+                offset = (currentPage - 1) * _perPage;
+            }
+
+            // Se preiau articolele corespunzatoare pentru fiecare pagina la care ne aflam
+            // in functie de offset
+            var paginatedGroups = groups.Skip(offset).Take(_perPage);
+            // Preluam numarul ultimei pagini
+            ViewBag.lastPage = Math.Ceiling((float)totalItems / (float)_perPage);
+            // Trimitem grupurile cu ajutorul unui ViewBag catre View-ul corespunzator
+
+            ViewBag.Groups = paginatedGroups;
 
             return View();
         }

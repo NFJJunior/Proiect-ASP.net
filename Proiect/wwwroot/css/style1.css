@@ -1,7 +1,7 @@
-﻿body {
+﻿    body {
     margin: 0;
     padding: 0;
-    background: #fff;
+    background-color: sandybrown;
     font-family: 'Raleway',sans-serif;
     color: #fff;
 }
@@ -108,4 +108,27 @@
     color: white;
     padding: 20px 35px;
     font-size: 16px;
+}
+
+.container {
+    display: grid;
+    color: black;
+    grid-template-areas:
+        'moderatori useri';
+    grid-gap: 40px;
+    justify-content: center;
+    text-align: center;
+}
+
+.item {
+    padding: 10px;
+    border-radius: 10px;
+}
+
+.moderatori {
+    grid-area: moderatori;
+}
+
+.useri {
+    grid-area: useri;
 }

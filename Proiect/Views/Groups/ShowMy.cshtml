@@ -1,7 +1,5 @@
-﻿@{
-    ViewBag.Title = "My groups";
-}
-<h2>Afisare grupurile mele</h2>
+﻿<div class="wallpaperIndex">
+<h2 class="center p-4 text-white">Afisare grupurile mele</h2>
 <br />
 
 @if (ViewBag.Message != null)
@@ -9,18 +7,40 @@
     <h2 class="alert-success p-3 rounded-3 text-center mb-5">@ViewBag.Message</h2>
 }
 
-@foreach (Proiect.Models.UserGroup group in ViewBag.groups)
+@foreach (Proiect.Models.UserGroup group in ViewBag.Groups)
 {
-     <div class="card">
+    <div class="card w-50 center mb-2">
 
         <div class="card-body">
 
-            <h3 class="card-title alert-success py-3 px-3 rounded-2">@group.Group.Name</h3>
+            <h3 class="card-title py-3 px-3 rounded-2">@group.Group.Name</h3>
 
         </div>
 
-        <a class="btn btn-success" href="/Groups/Show/@group.GroupId">Afisare grup</a>
-        <br />
+        <a class="btn btn-info" href="/Groups/Show/@group.GroupId">Afisare grup</a>
 
     </div>
 }
+
+    @* Afisarea paginata a articolelor *@
+    <div class="center">
+        <nav aria-label="Page navigation example">
+            <ul class="pagination center justify-content-center">
+                <li class="page-item">
+                    <a class="page-link" href="/Groups/ShowMy?page=1" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+                @for (int i = 1; i <= ViewBag.lastPage; i++)
+                {
+                    <li class="page-item"> <a class="page-link" href="/Groups/ShowMy?page=@i">@(i)</a> </li>
+                }
+                <li class="page-item">
+                    <a class="page-link" href="/Groups/ShowMy?page=@(ViewBag.lastPage)" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>

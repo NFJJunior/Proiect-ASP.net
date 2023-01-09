@@ -1,11 +1,7 @@
-﻿@{
-    ViewBag.Title = "ShowMembers";
-}
+﻿
+<div class="container">
 
-@if (ViewBag.Message != null)
-{
-    <h2 class="alert-success p-3 rounded-3 text-center mb-5">@ViewBag.Message</h2>
-}
+    <div class="item moderatori wallpaperIndex text-white">
 
 <h2>Afisare moderatori</h2>
 <br />
@@ -15,16 +11,20 @@
     if (user.IsModerator)
     {
         <div class="card-body">
-            <h3 class="card-title alert-success py-3 px-3 rounded-2">@user.User.UserName</h3>
+            <h3 class="card-title py-3 px-3 rounded-2">@user.User.UserName</h3>
 
             @if (ViewBag.isAdmin)
             {
-                <h3 class="card-title alert-success py-3 px-3 rounded-2">@user.UserId</h3>
+                <h3 class="card-title py-3 px-3 rounded-2">@user.UserId</h3>
             }
         </div>
     }
 }
 <br /><br />
+
+</div>
+
+    <div class="item useri wallpaperIndex text-white">
 
 <h2>Afisare useri</h2>
 <br />
@@ -34,11 +34,11 @@
     if (! user.IsModerator && user.IsAccepted)
     {
         <div class="card-body">
-            <h3 class="card-title alert-success py-3 px-3 rounded-2">@user.User.UserName</h3>
+            <h3 class="card-title py-3 px-3 rounded-2">@user.User.UserName</h3>
 
             @if (ViewBag.isAdmin)
             {
-                <h3 class="card-title alert-success py-3 px-3 rounded-2">@user.UserId</h3>
+                <h3 class="card-title py-3 px-3 rounded-2">@user.UserId</h3>
             }
 
             @if ((ViewBag.userGroup != null && ViewBag.userGroup.IsModerator) || ViewBag.isAdmin)
@@ -60,3 +60,7 @@
         </div>
     }
 }
+
+</div>
+
+</div>

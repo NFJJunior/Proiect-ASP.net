@@ -37,14 +37,14 @@
 
                 <label>Selectati categoria</label>
                 @Html.DropDownListFor(m => m.CategoryId, new SelectList(Model.AllCategories, "Value", "Text"),
-            "Selectati categoria", new { @class = "form-control" })
+                "Selectati categoria", new { @class = "form-control" })
 
                 @Html.ValidationMessageFor(m => m.CategoryId, null, new { @class = "text-danger" })
                 <br />
 
                 <br />
 
-                        <button class="bg-info text-white btn-lg" type="submit">Adauga grup</button>
+                <button class="bg-info text-white btn-lg" type="submit">Adauga grup</button>
 
             }
 
