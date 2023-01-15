@@ -415,7 +415,8 @@ namespace Proiect.Controllers
         public IActionResult JoinRequests(int id)
         {
             var users = db.UserGroups.Include("User")
-                                     .Where(u => u.IsAccepted == false);
+                                     .Where(u => u.IsAccepted == false)
+                                     .Where(u => u.GroupId == id);
 
             ViewBag.users = users;
 
